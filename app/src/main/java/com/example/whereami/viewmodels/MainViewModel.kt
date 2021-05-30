@@ -6,7 +6,7 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.model.PlaceDetail
+import com.example.whereami.model.PlaceDetail
 import com.example.whereami.R
 import com.example.whereami.common.enums.Marker
 import com.example.whereami.sounds.AudioPlayer

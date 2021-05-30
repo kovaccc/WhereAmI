@@ -1,4 +1,4 @@
-package com.example.model
+package com.example.whereami.model
 
 data class PlaceDetail(
         val latitude: Double,
