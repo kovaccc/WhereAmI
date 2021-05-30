@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WhereAmI</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="accept_permissions">Accept permissions to enable this feature</string>
+
+    <string name="marker_location_title">I am here</string>
+    <string name="marker_location_description"> Wow! I finally know where I am!</string>
+    <string name="save"> Capture image </string>
+    <string name="change_marker"> Change Marker</string>
+    <string name="location_info"> Geographic latitude: %1f \nGeographic longitude: %2f \nCountry: %3s \nCity: %4s \nAddress: %5s\n </string>
+    <string name="notification_body"> Image of location captured. Click to see Image </string>
+
+</resources>
