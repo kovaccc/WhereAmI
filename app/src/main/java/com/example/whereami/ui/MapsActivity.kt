@@ -169,7 +169,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 addMarkerToLocation(latLng = it.toLatLng(), resource = marker.resource)
             }
         })
-
     }
 
     override fun onResume() {
