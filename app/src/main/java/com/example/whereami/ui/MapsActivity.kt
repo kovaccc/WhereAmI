@@ -3,6 +3,7 @@ package com.example.whereami.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -42,6 +43,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.io.*
 import java.util.*
 
+
 private const val TAG = "MapsActivity"
 
 @AndroidEntryPoint
@@ -49,6 +51,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val mainViewModel: MainViewModel by viewModels()
     private lateinit var binding: ActivityMapsBinding
+
+    private lateinit var currentPhotoUri: Uri
 
     private fun onMapInitialized(map: GoogleMap) {}
     private fun onMapError(error: MapError) {}
@@ -89,10 +93,56 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val mSaveMapImageLiveData = Observer<Boolean> { isSaved ->
         if (isSaved) {
-            captureScreen()
+            checkForCameraPermissionAndTakePhoto()
         }
     }
 
+    private fun checkForCameraPermissionAndTakePhoto() {
+        if (!this@MapsActivity.hasPermissions(CAMERA_PERMISSION)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(CAMERA_PERMISSION, CAMERA_CODE)
+            }
+        } else {
+           dispatchTakePictureIntent()
+        }
+    }
+
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val photoUri = getImageUri()
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+        try {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+        } catch (e: ActivityNotFoundException) {
+            Log.e(TAG, "dispatchTakePictureIntent $e")
+        }
+    }
+
+    private fun getImageUri() : Uri? {
+        val filename = "${currentLocation}.jpg"
+
+       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            this.contentResolver?.also { resolver ->
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                }
+                val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                imageUri?.let {
+                    currentPhotoUri = it
+                }
+                return imageUri
+            }
+        } else {
+            val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+            val image = File(imagesDir, filename)
+            val photoURI = FileProvider.getUriForFile(this, this.applicationContext.packageName.toString() + ".provider", image)
+            currentPhotoUri = photoURI
+            return photoURI
+        }
+        return null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,7 +171,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -184,6 +233,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     mainViewModel.currentScreenshotMLD.value?.let {
                         saveMediaToStorage(it)
                     }
+                }
+            }
+
+            CAMERA_CODE -> {
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    toast(R.string.accept_permissions)
+                } else {
+                    dispatchTakePictureIntent()
                 }
             }
         }
@@ -286,7 +343,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         builder.include(latLng)
         map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 20))
     }
-
 
     private fun bitmapDescriptorFromVector(
             context: Context,
@@ -397,7 +453,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mainViewModel.currentScreenshotMLD.value = null
     }
 
-
     private fun showNotification(context: Context, title: String?, body: String?, imageId: Uri) {
         val imageIntent = openInGallery(imageId)
 
@@ -427,5 +482,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onDestroy()
         mainViewModel.centerLocationLiveData.removeObserver(this.mObserverCenterLocation)
         mainViewModel.saveMapImageLiveData.removeObserver(this.mSaveMapImageLiveData)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            showNotification(this, getString(R.string.app_name), getString(R.string.notification_body), currentPhotoUri)
+        }
     }
 }
