@@ -236,7 +236,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             CAMERA_CODE -> {
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED || grantResults[1] != PackageManager.PERMISSION_GRANTED) {
                     toast(R.string.accept_permissions)
                 } else {
                     dispatchTakePictureIntent()
