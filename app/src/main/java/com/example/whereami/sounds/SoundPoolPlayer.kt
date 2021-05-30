@@ -35,7 +35,7 @@ class SoundPoolPlayer @Inject constructor(@ApplicationContext context: Context) 
             soundPool = SoundPool(maxStreams, AudioManager.USE_DEFAULT_STREAM_TYPE, srcQuality)
         }
 
-        addingMarkerSoundId = soundPool.load(context, R.raw.hitmarker_2 , priority)
+        addingMarkerSoundId = soundPool.load(context, R.raw.hitmarker2 , priority)
     }
 
 
