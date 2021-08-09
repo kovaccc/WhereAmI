@@ -6,15 +6,15 @@ Android project is using Google Maps-based APIs for real-time experiences with t
 
 ## Features
 The android app lets you:
- - Check your current position on map 
- - Recentering on map
+ - Check your current position on a map 
+ - Recentering on a map
  - Reviewing information about current position latitude, longitude, address etc. 
  - Changing location marker with background sound  
  - capturing images of current location and saving it to external storage 
  - Getting notification for saved image which leads to gallery where image is saved 
  
 ## Tech-stack
-The project seeks to use recommended practices and libraries in Android development.
+The project seeks to use recommended practices and libraries in Android development:
 - MVVM architecture (Viewmodel + LiveData)
 - Data Binding
 - View Binding
