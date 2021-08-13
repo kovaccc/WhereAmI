@@ -8,7 +8,7 @@ Android project is using Google Maps-based APIs for real-time experiences with t
 The android app lets you:
  - Check your current position on a map 
  - Recentering on a map
- - Reviewing information about current position latitude, longitude, address etc. 
+ - Reviewing information about current position (latitude, longitude, address etc.) 
  - Changing location marker with background sound  
  - capturing images of current location and saving it to external storage 
  - Getting notification for saved image which leads to gallery where image is saved 
